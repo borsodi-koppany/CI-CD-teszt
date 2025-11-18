@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# manuálisan indítani
+workflow_dispatch:
+
+#időzített indítás
+# schedule:
+#   - cron: '04 10 * * * '
+
 jobs:
 
   build:
@@ -13,6 +20,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: generate image tab
+    -run : |
+      echo "IMAGE_TAG=$(date +%s)" >> $GITHUB_ENV
+
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: |
+        docker build . --file Dockerfile --tag ghcr.io/borsodi-koppany/cicd-teszt:$IMAGE_TAB
+        docker login ghcr.io -u borsodi-koppany -p ${{ secrets.GHCR_TOKEN }}
+        docker push ghcr.io/borsodi-koppany/cicd-teszt:$IMAGE_TAB
+ 
+
